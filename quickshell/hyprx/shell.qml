@@ -1,20 +1,32 @@
 import QtQuick
+import QtQuick.Controls
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
 
 ShellRoot {
     id: root
+
+    function toggleMode(nextMode) {
+        if (root.shown && root.mode === nextMode) {
+	    root.shown = false
+    	} else {
+    	    root.mode = nextMode
+	    root.shown = true
+        }	    
+    }	
+    
     property string mode: "launcher"
     property bool shown: false
 
     IpcHandler {
-        target: "hyprx"
-        function launcher(): void { root.mode = "launcher"; root.shown = !root.shown }
-        function control(): void { root.mode = "control"; root.shown = !root.shown }
-        function files(): void { root.mode = "files"; root.shown = !root.shown }
-        function clipboard(): void { root.mode = "clipboard"; root.shown = !root.shown }
-        function wallpaper(): void { root.mode = "wallpaper"; root.shown = !root.shown }
+	target: "hyprx"
+
+        function launcher(): void { root.toggleMode("launcher") }
+        function control(): void { root.toggleMode("control") }
+        function files(): void { root.toggleMode("files") }
+        function clipboard(): void { root.toggleMode("clipboard") }
+        function wallpaper(): void { root.toggleMode("wallpaper") }
         function hide(): void { root.shown = false }
     }
 

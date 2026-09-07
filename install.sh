@@ -23,8 +23,8 @@ if [[ -f "$main" ]]; then cp -a "$main" "$main.hyprx.$(date +%Y%m%d-%H%M%S).bak"
 if ! grep -q 'HYPRX:BEGIN' "$main"; then cat >> "$main" <<'LUA'
 
 -- HYPRX:BEGIN
-local ok, err = pcall(require, "hyprx.init")
-if not ok then print("HyprX: " .. tostring(err)) end
+dofile(os.getenv("HOME") .. "/.config/hypr/hyprx/keybinds.lua")
+dofile(os.getenv("HOME") .. "/.config/hypr/hyprx/autostart.lua")
 -- HYPRX:END
 LUA
 fi
