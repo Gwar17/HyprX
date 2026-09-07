@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+DIR="${HYPRX_WALLPAPER_DIR:-$HOME/Pictures/Wallpapers/HyprX}"
+case "${1:-}" in
+  --random) mapfile -d '' imgs < <(find "$DIR" -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.webp' \) -print0); ((${#imgs[@]})) || exit 1; img="${imgs[RANDOM % ${#imgs[@]}]}" ;;
+  --clipboard) img="$(wl-paste -n)" ;;
+  '') echo "usage: hyprx-wallpaper IMAGE | --random | --clipboard" >&2; exit 2 ;;
+  *) img="$1" ;;
+esac
+[[ -f "$img" ]] || { echo "Not a file: $img" >&2; exit 1; }
+awww img "$img" --transition-type grow --transition-duration 0.7
+printf '%s\n' "$img" > "${XDG_STATE_HOME:-$HOME/.local/state}/hyprx-wallpaper" 2>/dev/null || true

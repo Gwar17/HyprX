@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+mkdir -p "${XDG_CONFIG_HOME:-$HOME/.config}/fish/conf.d"
+out="${XDG_CONFIG_HOME:-$HOME/.config}/fish/conf.d/hyprx-imported-aliases.fish"
+: > "$out"
+if [[ -f "$HOME/.bashrc" ]]; then
+  sed -nE "s/^alias ([A-Za-z0-9_-]+)='(.*)'$/alias \1 '\2'/p" "$HOME/.bashrc" >> "$out"
+fi
+fish_bin="$(command -v fish)"
+grep -qxF "$fish_bin" /etc/shells || echo "$fish_bin" | sudo tee -a /etc/shells >/dev/null
+chsh -s "$fish_bin"
+echo "Fish enabled. Imported simple aliases to $out"
