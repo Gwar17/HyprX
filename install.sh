@@ -20,13 +20,17 @@ install -m755 "$ROOT/scripts/hyprx-wallpaper" "$HOME/.local/bin/"; install -m755
 cp -n "$ROOT"/wallpapers/* "$HOME/Pictures/Wallpapers/HyprX/" 2>/dev/null || true
 main="$CFG/hypr/hyprland.lua"; mkdir -p "$(dirname "$main")"
 if [[ -f "$main" ]]; then cp -a "$main" "$main.hyprx.$(date +%Y%m%d-%H%M%S).bak"; else printf '%s\n' '-- Base Hyprland Lua configuration' > "$main"; fi
-if ! grep -q 'HYPRX:BEGIN' "$main"; then cat >> "$main" <<'LUA'
+
+sed -i '/^-- HYPRX:BEGINS/,/^-- HYPRX:ENDS/d' "$main"
+
+cat >> "$main" <<'LUA'
 
 -- HYPRX:BEGIN
 dofile(os.getenv("HOME") .. "/.config/hypr/hyprx/keybinds.lua")
 dofile(os.getenv("HOME") .. "/.config/hypr/hyprx/autostart.lua")
 -- HYPRX:END
+
 LUA
-fi
+
 ((FISH)) && "$HOME/.local/bin/hyprx-bash-to-fish"
 log 'Installed. Reload Hyprland or log out/in. Quickshell config: qs -c hyprx'
