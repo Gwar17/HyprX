@@ -21,7 +21,7 @@ cp -n "$ROOT"/wallpapers/* "$HOME/Pictures/Wallpapers/HyprX/" 2>/dev/null || tru
 main="$CFG/hypr/hyprland.lua"; mkdir -p "$(dirname "$main")"
 if [[ -f "$main" ]]; then cp -a "$main" "$main.hyprx.$(date +%Y%m%d-%H%M%S).bak"; else printf '%s\n' '-- Base Hyprland Lua configuration' > "$main"; fi
 
-sed -i '/^-- HYPRX:BEGINS/,/^-- HYPRX:ENDS/d' "$main"
+sed -i '/HYPRX:BEGIN/,/HYPRX:END/d' "$main"
 
 cat >> "$main" <<'LUA'
 
