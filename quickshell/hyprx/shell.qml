@@ -1,13 +1,95 @@
 import QtQuick
-import QtQuick.Controls
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
+import QtQuick.Controls
+import Quickshell.Services.Notifications
 
 ShellRoot {
     id: root
+    
+    property var latestNotification: null
+    property var notifications: []
+    property bool notificationPopupVisible: false
 
-    function toggleMode(nextMode) {
+    NotificationServer {
+	id: notificationServer
+
+	keepOnReload: true
+
+	onNotification: notification => {
+		notification.tracked = true
+		root.latestNotification = notification
+		root.notifications = [notification].concat(root.notifications)
+		root.notificationPopupVisible = true	
+		notificationTimer.restart()
+	}
+
+     }
+
+     Timer {
+	 id: notificationTimer
+	 interval: 5000
+	 repeat: false
+
+	 onTriggered: {
+	     root.notificationPopupVisible = false
+
+	 }
+     }
+
+
+     FloatingWindow {
+	 id: notificationPopup
+     	 visible: root.notificationPopupVisible && root.latestNotification !== null
+	 width: 380
+	 height: 120
+	 color: "transparent"
+
+	 Rectangle {
+	     anchors.fill: parent
+    	     radius: 18
+	     color: "#ee0b0b0d"
+	     border.color: "#28282c"
+
+	     ColumnLayout {
+		 anchors.fill: parent
+    		 anchors.margins: 16
+		 spacing: 6
+
+		 Text {
+		     text: root.latestNotification ? root.latestNotification.appName : ""
+    		     color: "#909095"
+		     font.family: "Inter Variable"
+		     font.pixelSize: 12
+		 }		     
+		
+                 Text {
+		     text: root.latestNotification ? root.latestNotification.summary : ""
+		     color: "#eeeeee"
+		     font.family: "Inter Variable"
+		     font.pixelSize: 16
+		     font.bold: true
+		     Layout.fillWidth: true
+		     elide: Text.ElideRight
+		 }
+
+		 Text {
+		     text: root.latestNotification ? root.latestNotification.body : ""
+		     color: "#eeeeee"
+		     font.family: "Inter Variable"
+		     font.pixelSize: 13
+		     Layout.fillWidth: true
+		     wrapMode: Text.WordWrap
+	         } 
+	      }
+           }
+        }   
+
+     property string mode: "launcher"
+     property bool shown: false
+     
+     function toggleMode(nextMode) {
         if (root.shown && root.mode === nextMode) {
 	    root.shown = false
     	} else {
@@ -16,9 +98,6 @@ ShellRoot {
         }	    
     }	
     
-    property string mode: "launcher"
-    property bool shown: false
-
     IpcHandler {
 	target: "hyprx"
 
@@ -27,7 +106,8 @@ ShellRoot {
         function files(): void { root.toggleMode("files") }
         function clipboard(): void { root.toggleMode("clipboard") }
         function wallpaper(): void { root.toggleMode("wallpaper") }
-        function hide(): void { root.shown = false }
+     function  notifications(): void { root.toggleMode("notifications") }
+	function hide(): void { root.shown = false }
     }
 
     FloatingWindow {
@@ -42,8 +122,9 @@ ShellRoot {
                 anchors.fill: parent; anchors.margins: 18; spacing: 12
                 Text { text: root.mode.charAt(0).toUpperCase() + root.mode.slice(1); color: "#eeeeee"; font.family: "Inter Variable"; font.pixelSize: 20; font.bold: true }
                 TextField {
-                    id: search; visible: root.mode !== "control"; Layout.fillWidth: true
-                    placeholderText: root.mode === "wallpaper" ? "Wallpaper path or search…" : "Search…"
+     visible:  root.mode  !== "Control" &&  root.mode !== "notifications";
+				    Layout.fillWidth: true
+     placeholderText: root.mode === "Wallpaper" ? "Wallpaper path  or  search..." : "Search..."
                     color: "#eeeeee"; font.family: "Inter Variable"
                     background: Rectangle { radius: 14; color: "#151517"; border.color: "#28282c" }
                     Keys.onReturnPressed: {
@@ -65,7 +146,73 @@ ShellRoot {
                 }
                 Text { visible: root.mode === "launcher"; text: "Type a command and press Enter"; color: "#909095"; font.family: "Inter Variable" }
                 Text { visible: root.mode === "files"; text: "Search your home directory and press Enter"; color: "#909095"; font.family: "Inter Variable" }
-                Text { visible: root.mode === "clipboard"; text: "Clipboard history: use cliphist list | fuzzel for now; native list is the next UI module."; wrapMode: Text.WordWrap; Layout.fillWidth: true; color: "#909095"; font.family: "Inter Variable" }
+		Text { visible: root.mode === "clipboard"; text: "Clipboard history: use cliphist list | fuzzel for now; native list is the next UI module."; wrapMode: Text.WordWrap; Layout.fillWidth: true; color: "#909095"; font.family: "Inter Variable" }
+		ColumnLayout {
+		    visible: root.mode === "notifications"
+      Layout.fillWidth: true
+		    spacing: 8
+		    Text {
+		    text: "Clear all"
+		    color: "#909095"
+		    font.family: "Inter Variable"
+		    MouseArea {
+			    anchors.fill: parent
+			    onClicked: {
+				    for (let i = notificationServer.trackedNotifications.values.length - 1; i >= 0; --i) {
+					    notificationServer.trackedNotifications.values[i].dismiss()
+				    }
+			    }
+		    }
+	    }
+
+
+		    Repeater {
+			model: notificationServer.trackedNotifications
+
+      delegate: Rectangle {
+			    required property var modelData
+
+
+      Layout.fillWidth: true
+			    height: 72
+			    radius: 12
+      color: "#151517"
+      border.color: "#28282c"
+
+
+      MouseArea {
+	     anchors.fill: parent
+	     onClicked: modelData.dismiss()
+
+      }	     
+     
+     
+      Column {
+	   anchors.fill: parent
+	   anchors.margins: 10
+	   spacing: 4
+
+      Text {
+	  text: modelData.summary
+	  color: "#eeeeee"
+	  font.family: "Inter Variable"
+	  font.bold: true 
+	}
+			    
+      Text {	
+          text: modelData.body
+	  color: "#909095"
+	  font.family: "Inter Variable"
+	  elide: Text.ElideRight
+	  width: parent.width 
+        }
+      } 
+    } 
+  } 
+}
+
+				
+						
                 Text { visible: root.mode === "wallpaper"; text: "Paste an image path and press Enter, or Super+Shift+W for random."; wrapMode: Text.WordWrap; Layout.fillWidth: true; color: "#909095"; font.family: "Inter Variable" }
                 Item { Layout.fillHeight: true }
             }
