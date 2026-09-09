@@ -21,6 +21,9 @@ cp -n "$ROOT"/wallpapers/* "$HOME/Pictures/Wallpapers/HyprX/" 2>/dev/null || tru
 main="$CFG/hypr/hyprland.lua"; mkdir -p "$(dirname "$main")"
 if [[ -f "$main" ]]; then cp -a "$main" "$main.hyprx.$(date +%Y%m%d-%H%M%S).bak"; else printf '%s\n' '-- Base Hyprland Lua configuration' > "$main"; fi
 
+# Disable base Hyprland bindings that HyprX replaces
+sed -i '/hl\.bind(mainMod .. " + Q", hl\.dsp\.exec_cmd(terminal))/s/^/-- HYPRX-DISABLED: /' "$main"
+sed -i 's/^-- closeWindowBind:set_enabled(false)$/closeWindowBind:set_enabled(false)/' "$main"
 sed -i '/HYPRX:BEGIN/,/HYPRX:END/d' "$main"
 
 cat >> "$main" <<'LUA'

@@ -9,7 +9,7 @@ hl.bind('SUPER + Q', hl.dsp.window.close())
 hl.bind('SUPER + A', exec('qs -c hyprx ipc call hyprx launcher'))
 hl.bind('SUPER + X', exec('qs -c hyprx ipc call hyprx control'))
 hl.bind('SUPER + F', exec('qs -c hyprx ipc call hyprx files'))
-hl.bind('SUPER + V', exec('qs -c hyprx ipc call hyprx clipboard'))
+hl.bind('SUPER + C', exec('qs -c hyprx ipc call hyprx clipboard'))
 hl.bind('SUPER + N', exec('qs -c hyprx ipc call hyprx notifications'))
 hl.bind('SUPER + W', exec('qs -c hyprx ipc call hyprx wallpaper'))
 
