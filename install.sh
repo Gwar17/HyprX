@@ -3,6 +3,7 @@ set -Eeuo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CFG="${XDG_CONFIG_HOME:-$HOME/.config}"
 BIN="$HOME/.local/bin"
+export PATH="$BIN:$PATH"
 STAMP="$(date +%Y%m%d-%H%M%S)"
 FISH=0
 for x in "$@"; do
