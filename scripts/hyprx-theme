@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+CFG="${XDG_CONFIG_HOME:-$HOME/.config}"
+THEMES="$CFG/hyprx/themes"
+ACTIVE="$CFG/hyprx/theme.env"
+
+theme="${1:-}"
+[[ -n "$theme" ]] || { echo "usage: hyprx-theme THEME" >&2; exit 2; }
+
+dir="$THEMES/$theme"
+src="$dir/hyprx.env"
+
+[[ -d "$dir" ]] || { echo "Theme not found: $theme" >&2; exit 1; }
+[[ -f "$src" ]] || { echo "HyprX palette not found: $src" >&2; exit 1; }
+
+mkdir -p "$CFG/hyprx"
+cp "$src" "$ACTIVE"
+printf '%s\n' "$theme" > "$CFG/hyprx/current-theme.txt"
+
+hyprx-sync-theme
+
+# Theme defaults remain separate from the selectable wallpaper library.
+if [[ -f "$dir/wallpaper.png" ]]; then
+    hyprx-wallpaper "$dir/wallpaper.png"
+fi
+
+# Keep a running Quickshell instance synchronized with CLI-driven changes.
+qs -c hyprx ipc call hyprx reloadtheme >/dev/null 2>&1 || true
+printf '%s\n' "$theme"

@@ -1,0 +1,21 @@
+# HyprX design contract
+
+- One top-centred island with an 8 px screen-edge gap.
+- Collapsed geometry: 124 × 34 px capsule, time only.
+- Main geometry transitions: 360 ms, expanding horizontally and downward without jumping.
+- Expanded modes may have different target geometry and can morph directly between each other.
+- Base shell: neutral translucent black, subtle neutral border, no colored outer glow.
+- Theme color is functional: selected cards, palette dots, focus, active toggles, sliders and highlights.
+- Wallpaper and Theme use a shared card scale and horizontal navigation language.
+- Launcher follows the supplied minimal search/list reference.
+- Media follows the supplied album-art / transport / clock-calendar reference.
+- Control Center follows the supplied Wi-Fi/Bluetooth/Focus + media + sliders + notifications reference.
+- Notifications use native Quickshell behavior with the supplied Nova visual language and reflow with available island height.
+- Power/Session is minimal black and horizontally organized; destructive actions are visually distinct.
+- Mouse and keyboard are peers. Escape closes; directional keys navigate; Enter activates where appropriate.
+- Content is discovered dynamically. No maintained arrays of wallpaper filenames, installed applications, or theme names.
+- Fonts: Inter Variable for UI and JetBrainsMono Nerd Font Mono for terminal/monospace content. Font configuration remains replaceable later.
+- Kitty remains minimal black regardless of palette; theme colors drive terminal foreground/ANSI/accent state.
+- Dolphin is the primary GUI file manager; Yazi Git is the terminal file manager.
+- Rofi is installed as a fallback launcher; HyprX's normal launcher is native Quickshell.
+- AWWW owns wallpaper rendering/transitions; HyprX owns wallpaper selection.

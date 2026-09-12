@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -euo pipefail
+STATE="${XDG_STATE_HOME:-$HOME/.local/state}/hyprx-wallpaper"
+for _ in {1..30}; do
+  awww query >/dev/null 2>&1 && break
+  sleep .1
+done
+if [[ -f "$STATE" ]] && [[ -f "$(cat "$STATE")" ]]; then
+  hyprx-wallpaper "$(cat "$STATE")"
+else
+  theme="$(cat "${XDG_CONFIG_HOME:-$HOME/.config}/hyprx/current-theme.txt" 2>/dev/null || printf Catppuccin)"
+  def="${XDG_CONFIG_HOME:-$HOME/.config}/hyprx/themes/$theme/wallpaper.png"
+  [[ -f "$def" ]] && hyprx-wallpaper "$def"
+fi
