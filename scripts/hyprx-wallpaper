@@ -1,22 +1,44 @@
 #!/usr/bin/env bash
 set -euo pipefail
+
 CFG="${XDG_CONFIG_HOME:-$HOME/.config}"
 STATE="${XDG_STATE_HOME:-$HOME/.local/state}"
+
 active="$(cat "$CFG/hyprx/current-theme.txt" 2>/dev/null || printf Catppuccin)"
 DIR="${HYPRX_WALLPAPER_DIR:-$HOME/Pictures/Wallpapers/$active}"
+
 case "${1:-}" in
   --random)
     mapfile -d '' imgs < <(find "$DIR" -maxdepth 1 -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.webp' \) -print0 2>/dev/null)
     ((${#imgs[@]})) || { echo "No wallpapers found in: $DIR" >&2; exit 1; }
-    img="${imgs[RANDOM % ${#imgs[@]}]}" ;;
-  '') echo 'usage: hyprx-wallpaper IMAGE | --random' >&2; exit 2 ;;
-  *) img="$1" ;;
+    img="${imgs[RANDOM % ${#imgs[@]}]}"
+    ;;
+  '')
+    echo 'usage: hyprx-wallpaper IMAGE | --random' >&2
+    exit 2
+    ;;
+  *)
+    img="$1"
+    ;;
 esac
+
 [[ -f "$img" ]] || { echo "Not a file: $img" >&2; exit 1; }
-if ! awww query >/dev/null 2>&1; then
-  awww-daemon >/dev/null 2>&1 & disown || true
-  for _ in {1..20}; do awww query >/dev/null 2>&1 && break; sleep .1; done
-fi
-awww img "$img" --transition-type grow --transition-duration 0.7 --transition-fps 60
+
 mkdir -p "$STATE"
 printf '%s\n' "$img" > "$STATE/hyprx-wallpaper"
+
+# During a TTY install there is no Wayland compositor yet.
+# Save the wallpaper now and let hyprx-restore-wallpaper apply it after Hyprland starts.
+if [[ -z "${WAYLAND_DISPLAY:-}" ]]; then
+  exit 0
+fi
+
+if ! awww query >/dev/null 2>&1; then
+  awww-daemon >/dev/null 2>&1 & disown || true
+  for _ in {1..20}; do
+    awww query >/dev/null 2>&1 && break
+    sleep .1
+  done
+fi
+
+awww img "$img" --transition-type grow --transition-duration 0.7 --transition-fps 60
