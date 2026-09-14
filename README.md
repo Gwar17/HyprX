@@ -1,56 +1,81 @@
-# HyprX — native Quickshell overlay for Hyprland
+# HyprX
 
-A small Arch Linux overlay installed **on top of an existing Hyprland setup**. No DMS and no Matugen. HyprX owns its Quickshell UI and a single deterministic visual theme.
+HyprX is a complete Hyprland desktop installer and adaptive Quickshell interface for a minimal pacman-based Linux system. The operating-system base is installed separately; HyprX installs Hyprland, the desktop software it needs, and the complete HyprX layout.
 
-## Install from Git
+## Install
+
+Clone the repository and run the Hyprland installer as your normal user:
 
 ```bash
 git clone https://github.com/Gwar17/HyprX.git
 cd HyprX
-./install.sh
+./bootstrap/install-hyprland.sh
 ```
 
-Use `./install.sh --edge` for `quickshell-git` (master) or `./install.sh --fish` to switch to Fish and migrate simple Bash aliases. Both flags may be combined.
-
-## Copy/paste install
-
-After publishing the repository as `Gwar17/HyprX`, users can paste:
+The installer installs the current HyprX desktop layer: Hyprland with UWSM, Quickshell, Kitty, Dolphin, Rofi, MPV, Firefox, `awww`, Hyprpicker, PipeWire/WirePlumber, NetworkManager and Bluetooth tooling, portals, lock/idle/sunset utilities, fonts/icons, SDDM, and supporting desktop utilities. HyprX uses the official repository package set only; there is no automatic AUR or `paru` path.
+A remote bootstrap entry point is also included:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/Gwar17/HyprX/main/bootstrap.sh | bash
 ```
 
-For a safer inspect-then-run flow:
+## Hyprland configuration
 
-```bash
-curl -fsSLO https://raw.githubusercontent.com/Gwar17/HyprX/main/bootstrap.sh
-less bootstrap.sh
-bash bootstrap.sh
+HyprX uses **Hyprland Lua configuration only**. The installer backs up any existing Hyprland configuration, then installs the clean HyprX-owned `hypr/hyprland.lua` as the active configuration.
 ```
 
-## What it adds
+Managed backups are stored under `~/.local/state/hyprx/backups/`.
 
-- Native named Quickshell config at `~/.config/quickshell/hyprx`
-- Small Hyprland Lua overlay at `~/.config/hypr/hyprx`
-- `awww` wallpaper helper with direct, random, and clipboard-path modes
-- Quickshell launcher/control/file/clipboard/wallpaper surfaces and IPC hooks
-- Unified Inter / JetBrains Mono Nerd Font / Papirus visual defaults
-- Optional Bash → Fish migration
+## Island
 
-The installer backs up `hyprland.lua` before adding the guarded HyprX require block. It does not replace the base Hyprland configuration.
+The island is one top-pinned Quickshell surface. Its collapsed state is a small top-centred clock pill, and it morphs in **360 ms** between launcher, media, theme, wallpaper, control center, notifications and power/session modes. The shell stays neutral translucent black; theme colors are used as functional accents for focus, selection, toggles, sliders and swatches.
 
-## Keys
+Theme and wallpaper lists are discovered at runtime. Applications come from desktop entries, media uses MPRIS, and notifications are native Quickshell using the HyprX/Nova visual language.
 
-`Super+Space` launcher · `Super+C` control center · `Super+E` files · `Super+V` clipboard · `Super+W` wallpapers · `Super+Shift+W` random wallpaper · `Super+Return` Kitty.
+## Themes and wallpapers
 
-## Publish
+HyprX ships nine palettes: Catppuccin, E-ink, Emerald, Everforest, Gruvbox, Nord, Onedark, Rose Pine and TokyoNight.
 
-```bash
-git init
-git add .
-git commit -m "Initial HyprX Quickshell"
-git branch -M main
-git remote add origin git@github.com:Gwar17/HyprX.git
-git push -u origin main
+`hyprx-theme THEME` updates the active palette and synchronizes Hyprland Lua colors, Kitty, Rofi, and KDE/Dolphin. Wallpapers are managed independently through `hyprx-wallpaper` with `awww` as the backend.
+## Key bindings
+
+- `Super+Return` — Kitty
+- `Super+E` — Dolphin
+- `Super+R` — Rofi fallback launcher
+- `Super+Space` / `Super+A` — HyprX launcher
+- `Super+X` — control center
+- `Super+T` — themes
+- `Super+W` — wallpapers
+- `Super+N` — notifications
+- `Super+M` — media
+- `Super+Shift+P` — power/session
+- `Super+Shift+C` — Hyprpicker
+- `Super+Shift+W` — random wallpaper
+
+## Shell and terminal surface
+
+Bash is the default choice and Fish is available during installation or later with `hyprx-shell fish`. Switch back with `hyprx-shell bash`. Both use the same deliberately minimal prompt style; Fish keeps its native interactive syntax highlighting.
+
+Terminal presentation is independent of the active color palette. `hyprx-surface matte`, `minimal`, `gloss`, or `glass` changes Kitty's surface/transparency while preserving the active HyprX colors. `minimal` is the default.
+
+## Repository layout
+
+```text
+bootstrap.sh
+bootstrap/
+  install-hyprland.sh
+  packages.repo
+hypr/
+  hyprland.lua
+hyprx/
+  colors.lua
+  keybinds.lua
+quickshell/hyprx/
+apps/
+greeter/hyprx/
+scripts/
+theme/
+wallpapers/
 ```
 
+Hyprland integration is Lua-based; there is no parallel `hyprland.conf` configuration tree.

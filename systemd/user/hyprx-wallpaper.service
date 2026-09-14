@@ -1,0 +1,13 @@
+[Unit]
+Description=Restore HyprX wallpaper
+PartOf=graphical-session.target
+After=graphical-session.target hyprx-awww.service
+Requires=hyprx-awww.service
+ConditionEnvironment=WAYLAND_DISPLAY
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/hyprx-restore-wallpaper
+
+[Install]
+WantedBy=graphical-session.target

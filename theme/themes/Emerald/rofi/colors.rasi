@@ -1,0 +1,12 @@
+/**
+ * Emerald Rofi Colors
+ **/
+
+* {
+    background:     #0B0F0EFF;
+    background-alt: #063B31FF;
+    foreground:     #ECF3F2FF;
+    selected:       #10B981FF;
+    active:         #34D399FF;
+    urgent:         #EF4444FF;
+}

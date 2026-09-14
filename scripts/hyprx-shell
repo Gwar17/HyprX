@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+set -euo pipefail
+CFG="${XDG_CONFIG_HOME:-$HOME/.config}"
+choice="${1:-}"
+case "$choice" in
+  bash|fish) ;;
+  *) echo 'Usage: hyprx-shell {bash|fish}' >&2; exit 2 ;;
+esac
+mkdir -p "$CFG/hyprx" "$CFG/fish/conf.d"
+# Bash: one minimal line — current directory + accent-colored chevron when supported.
+BASHRC="$HOME/.bashrc"
+start='# >>> HyprX prompt >>>'; end='# <<< HyprX prompt <<<'
+if [[ -f "$BASHRC" ]]; then sed -i "/^${start//\//\\/}$/,/^${end//\//\\/}$/d" "$BASHRC"; fi
+cat >> "$BASHRC" <<'EOT'
+# >>> HyprX prompt >>>
+__hyprx_prompt() {
+  local accent='89b4fa' envfile="${XDG_CONFIG_HOME:-$HOME/.config}/hyprx/theme.env"
+  if [[ -r "$envfile" ]]; then accent="$(sed -n 's/^HYPRX_ACCENT=#\?//p' "$envfile" | head -1)"; fi
+  PS1="\[\e[38;2;$((16#${accent:0:2}));$((16#${accent:2:2}));$((16#${accent:4:2}))m\]\w ❯ \[\e[0m\]"
+}
+PROMPT_COMMAND="__hyprx_prompt${PROMPT_COMMAND:+;$PROMPT_COMMAND}"
+# <<< HyprX prompt <<<
+EOT
+cat > "$CFG/fish/conf.d/hyprx.fish" <<'EOT'
+# HyprX minimal Fish prompt. Fish provides interactive syntax highlighting natively.
+function fish_prompt
+    set -l accent 89b4fa
+    set -l envfile "$XDG_CONFIG_HOME/hyprx/theme.env"
+    test -n "$XDG_CONFIG_HOME"; or set envfile "$HOME/.config/hyprx/theme.env"
+    if test -r $envfile
+        set -l found (string replace -r '^HYPRX_ACCENT=#?' '' (string match -r '^HYPRX_ACCENT=.*' < $envfile))
+        test -n "$found"; and set accent $found
+    end
+    set_color $accent
+    printf '%s ❯ ' (prompt_pwd)
+    set_color normal
+end
+set -g fish_greeting
+EOT
+shell_bin="$(command -v "$choice")"
+if ! grep -qxF "$shell_bin" /etc/shells; then echo "$shell_bin" | sudo tee -a /etc/shells >/dev/null; fi
+chsh -s "$shell_bin"
+printf '%s\n' "$choice" > "$CFG/hyprx/shell.txt"
+printf 'HyprX shell set to %s. Log out and back in to make it your login shell.\n' "$choice"

@@ -1,12 +1,42 @@
 #!/usr/bin/env bash
 set -euo pipefail
-DIR="${HYPRX_WALLPAPER_DIR:-$HOME/Pictures/Wallpapers/HyprX}"
+
+CFG="${XDG_CONFIG_HOME:-$HOME/.config}"
+STATE="${XDG_STATE_HOME:-$HOME/.local/state}"
+active="$(cat "$CFG/hyprx/current-theme.txt" 2>/dev/null || printf Catppuccin)"
+DIR="${HYPRX_WALLPAPER_DIR:-$HOME/Pictures/Wallpapers/$active}"
+
 case "${1:-}" in
-  --random) mapfile -d '' imgs < <(find "$DIR" -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.webp' \) -print0); ((${#imgs[@]})) || exit 1; img="${imgs[RANDOM % ${#imgs[@]}]}" ;;
-  --clipboard) img="$(wl-paste -n)" ;;
-  '') echo "usage: hyprx-wallpaper IMAGE | --random | --clipboard" >&2; exit 2 ;;
-  *) img="$1" ;;
+  --random)
+    mapfile -d '' imgs < <(find "$DIR" -maxdepth 1 -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.webp' \) -print0 2>/dev/null)
+    ((${#imgs[@]})) || { echo "No wallpapers found in: $DIR" >&2; exit 1; }
+    img="${imgs[RANDOM % ${#imgs[@]}]}"
+    ;;
+  '')
+    echo 'usage: hyprx-wallpaper IMAGE | --random' >&2
+    exit 2
+    ;;
+  *)
+    img="$1"
+    ;;
 esac
+
 [[ -f "$img" ]] || { echo "Not a file: $img" >&2; exit 1; }
-awww img "$img" --transition-type grow --transition-duration 0.7
-printf '%s\n' "$img" > "${XDG_STATE_HOME:-$HOME/.local/state}/hyprx-wallpaper" 2>/dev/null || true
+mkdir -p "$STATE"
+printf '%s\n' "$img" > "$STATE/hyprx-wallpaper"
+
+# A TTY install has no graphical session. Persist now; the session service restores later.
+if [[ -z "${WAYLAND_DISPLAY:-}" ]]; then
+  exit 0
+fi
+
+if ! awww query >/dev/null 2>&1; then
+  systemctl --user start hyprx-awww.service
+  for _ in {1..30}; do
+    awww query >/dev/null 2>&1 && break
+    sleep .1
+  done
+fi
+
+awww query >/dev/null 2>&1 || { echo 'HyprX: awww service did not become ready.' >&2; exit 1; }
+awww img "$img" --transition-type grow --transition-duration 0.7 --transition-fps 60

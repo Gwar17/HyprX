@@ -1,0 +1,2 @@
+-- HyprX window rules.
+-- Native Hyprland Lua window rules belong here.

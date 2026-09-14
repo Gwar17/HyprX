@@ -1,0 +1,26 @@
+/**
+ *
+ * Author : Aditya Shakya (adi1090x)
+ * Github : @adi1090x
+ * * E-INK Monochrome Colors
+ **/
+
+* {
+    /* Main Background - Matches your @bg0 */
+    background:     #121212FF;
+    
+    /* Lighter Grey for rows/bars - Matches your @bg1 */
+    background-alt: #1C1C1CFF;
+    
+    /* Main Text - Matches your @fg */
+    foreground:     #E0E0E0FF;
+    
+    /* High Contrast selection - Matches your @grey2 */
+    selected:       #B9BDC2FF;
+    
+    /* Subtle Active state - Matches your @grey1 */
+    active:         #888C94FF;
+    
+    /* Alert/Urgent state - Keeping it E-ink white for consistency */
+    urgent:         #E0E0E0FF;
+}

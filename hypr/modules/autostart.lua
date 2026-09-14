@@ -1,0 +1,3 @@
+-- HyprX long-running session components are owned by systemd user services
+-- under graphical-session.target.
+-- One-shot compositor startup actions may be added here when required.

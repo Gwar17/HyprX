@@ -1,0 +1,3 @@
+-- HyprX session environment is owned by UWSM.
+-- See ~/.config/uwsm/env and ~/.config/uwsm/env-hyprland.
+-- Compositor-local environment settings may be added here when required.
