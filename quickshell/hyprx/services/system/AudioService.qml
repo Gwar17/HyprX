@@ -28,7 +28,7 @@ QtObject {
             sink.audio.muted = !sink.audio.muted
     }
 
-    PwObjectTracker {
+    property PwObjectTracker sinkTracker: PwObjectTracker {
         objects: [service.sink]
     }
 }
