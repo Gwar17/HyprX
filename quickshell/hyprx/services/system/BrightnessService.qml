@@ -59,7 +59,7 @@ QtObject {
         ])
     }
 
-    Process {
+    property Process currentProcess: Process {
         id: currentProcess
 
         stdout: StdioCollector {
@@ -71,7 +71,7 @@ QtObject {
         }
     }
 
-    Process {
+    property Process maximumProcess: Process {
         id: maximumProcess
 
         stdout: StdioCollector {
@@ -83,7 +83,7 @@ QtObject {
         }
     }
 
-    Process {
+    property Process writeProcess: Process {
         id: writeProcess
         onExited: service.refresh()
     }

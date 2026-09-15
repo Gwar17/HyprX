@@ -15,7 +15,7 @@ cat >> "$BASHRC" <<'EOT'
 # >>> HyprX prompt >>>
 __hyprx_prompt() {
   local accent='89b4fa' envfile="${XDG_CONFIG_HOME:-$HOME/.config}/hyprx/theme.env"
-  if [[ -r "$envfile" ]]; then accent="$(sed -n 's/^HYPRX_ACCENT=#\?//p' "$envfile" | head -1)"; fi
+  if [[ -r "$envfile" ]]; then accent="$(sed -n 's/^HYPRX_ACCENT=//p' "$envfile" | head -1 | tr -d "\"'" | sed 's/^#//')"; fi
   PS1="\[\e[38;2;$((16#${accent:0:2}));$((16#${accent:2:2}));$((16#${accent:4:2}))m\]\w ❯ \[\e[0m\]"
 }
 PROMPT_COMMAND="__hyprx_prompt${PROMPT_COMMAND:+;$PROMPT_COMMAND}"
@@ -28,7 +28,7 @@ function fish_prompt
     set -l envfile "$XDG_CONFIG_HOME/hyprx/theme.env"
     test -n "$XDG_CONFIG_HOME"; or set envfile "$HOME/.config/hyprx/theme.env"
     if test -r $envfile
-        set -l found (string replace -r '^HYPRX_ACCENT=#?' '' (string match -r '^HYPRX_ACCENT=.*' < $envfile))
+        set -l found (string match -r '^HYPRX_ACCENT=.*' < $envfile | string replace -r '^HYPRX_ACCENT=' '' | string replace -a '"' '' | string replace -a "'" '' | string replace -r '^#' '')
         test -n "$found"; and set accent $found
     end
     set_color $accent
